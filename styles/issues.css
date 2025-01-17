@@ -1,0 +1,110 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #DFF5FF;
+  margin: 0;
+  padding: 0;
+}
+
+.inner {
+  position: relative;
+  max-width: 1350px;
+  margin: 20px auto;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+h1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #378CE7;
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px 10px 0 0;
+}
+
+h1 {
+  margin: 20px 0;
+}
+
+table {
+  width: 100%;
+  font-family: "Roboto", sans-serif;
+  font-weight: bold;
+  text-align: center;
+  vertical-align: top;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background-color: #378CE7;
+  color: white;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.delete-button {
+  background-color: #5356FF;
+  color: white;
+  margin-top: 22px;
+  margin-left: 10px;
+  margin-right: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: red;
+  color: white;
+}
+
+a {
+  margin-top: 10px;
+  margin-left: 2px;
+  font-weight: bold;
+}
+
+p {
+  font-weight: bolder;
+  font-family: "Roboto", sans-serif;
+
+}
+
+button {
+  background-color: #5356FF;
+  color: white;
+  font-weight: bolder;
+  font-family: "Roboto", sans-serif;
+  font-size: 15px;
+  border-radius: 10px;
+  transition: 0.15s;
+}
+
+button:hover {
+  background-color: white;
+  color: #5356FF;
+}
+
+/* Responsive Styling */
+@media only screen and (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

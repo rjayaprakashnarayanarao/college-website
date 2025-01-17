@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate Management - Report Issue</title>
+  <link rel="stylesheet" href="/form.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Report Certificate Issue</h1>
+    <form action="/" method="get">
+        <button type="submit"  id="backbtn">Back</button>
+    </form>
+    <form action="/submit-issue" method="post">
+      <label for="title">Title:</label>
+      <input type="text" id="title" name="title" required>
+  
+      <label for="description">Description:</label>
+      <textarea id="description" rows="5" cols="5" name="description" required></textarea>
+      
+      <label for="certificateType">Certificate Type:</label>
+      <select id="certificateType" name="certificateType" required>
+          <option value="CEA/NSS/National Initiatives">CEA/NSS/National Initiatives</option>
+          <option value="Sports and Game">Sports and Game</option>
+          <option value="Cultural Activities">Cultural Activities</option>
+          <option value="Women's form activities">Women's form activities</option>
+          <option value="Hobby clubs Activities">Hobby clubs Activities</option>
+          <option value="Professional society Activities">Professional society Activities</option>
+          <option value="DEpt. Students Association Activities">DEpt. Students Association Activities</option>
+          <option value="Technical Club Activities">Technical Club Activities</option>
+          <option value="Innovation and Incubation Cell Activities">Innovation and Incubation Cell Activities</option>
+          <option value="Professional Self Initiatives">Professional Self Initiatives</option>
+          <option value="Others">Others</option>
+          <!-- Add more options as needed -->
+      </select>
+      
+      <button type="submit">Submit Issue</button>
+    </form>
+  </div>
+</body>
+</html>

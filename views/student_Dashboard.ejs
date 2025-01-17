@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+    <link rel="stylesheet" href="/Student.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <title>STUDENT DASHBOARD</title>
+  </head>
+  <body>
+    <% if (successMessage) { %>
+    <script>
+      alert("<%= successMessage %>");
+      history.replaceState({}, document.title, window.location.pathname);
+    </script>
+    <% } %>
+  
+    <div class="dashboard-container">
+      <div class="top-bar">
+        <h1>STUDENT DASHBOARD</h1>
+      </div>
+
+      <div class="student">
+        <div class="student-info">
+          <strong>Roll Number:</strong> <%= students.length > 0 ?
+          students[0].roll_number : '' %>
+        </div>
+  
+        <div class="student-app">
+          <strong>APP POINTS:</strong>
+          <span id="total-app-points">Loading...</span>
+        </div>
+        <% let totalAppPoints = students[0].app_points.length %> <!-- Initialize totalAppPoints -->
+        <div>
+          <strong>TOTAL CERTIFICATES: </strong><%= totalAppPoints %>
+        </div>
+      </div>
+
+      <div class="options-container">
+        <div class="certificate-type">
+          <label for="certificate-type">Certificate Types:</label>
+          <select id="certificate-type">
+            <option value="All">All Types</option>
+            <option value="CEA/NSS/National Initiatives">CEA/NSS/National Initiatives</option>
+            <option value="Sports And Game">Sports And Game</option>
+            <option value="Cultural Activities">Cultural Activities</option>
+            <option value="Women's form activities">Women's form activities</option>
+            <option value="Hobby clubs Activities">Hobby clubs Activities</option>
+            <option value="Professional society Activities">Professional society Activities</option>
+            <option value="DEpt. Students Association Activities">DEpt. Students Association Activities</option>
+            <option value="Technical Club Activities">Technical Club Activities</option>
+            <option value="Innovation and Incubation Cell Activities">Innovation and Incubation Cell Activities</option>
+            <option value="Professional Self Initiatives">Professional Self Initiatives</option>
+            <option value="Others">Others</option>
+        </select>        
+        </div>
+
+        <div class="date-filter-container">
+          <div class="starter">
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date" required/>
+          </div>
+
+          <div class="end">
+            <label for="end-date">End Date:</label>
+            <input type="date" id="end-date" onchange="performSearch()" required/>
+          </div>
+          <!-- <button id="search-button" onclick="performSearch()">Search</button> -->
+
+          <div class="search-container">
+            <img class="search-img" src="https://imgs.search.brave.com/XvMw0v1hG45xwPMQMzjYeiv-ExO7HiedMmpd23ykgEA/rs:fit:500:0:0/g:ce/aHR0cHM6Ly9jZG4t/aWNvbnMtcG5nLmZy/ZWVwaWsuY29tLzI1/Ni80Njg3LzQ2ODcz/MTgucG5n" alt="m.g">
+            <input type="text" placeholder="Search..." id="search-bar"/>
+          </div>
+        </div>
+      </div>
+
+      <% const parseDate = (dateStr) => {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString();
+    }; %>
+    
+    <table class="student-table">
+      <thead>
+          <tr>
+              <th>Serial Number</th>
+              <th>Certification ID</th>
+              <th>Certificate Type</th>
+              <th>Date of Certificate</th>
+              <th>App Points</th>
+              <th>Certificates</th>
+          </tr>
+      </thead>
+      <% let serialNumber = 1; %> 
+      <% if (students && students.length > 0) { %>
+      <tbody>
+          <% for (var i = 0; i < students.length; i++) { %>
+              <% if (students[i] && students[i].certificate_id && students[i].certificate_id.length > 0) { %> 
+                  <% students[i].certificate_id.forEach((certificate_id, index) => { %>
+                      <tr>
+                          <td><%= serialNumber++; %></td>
+                          <td><%= certificate_id %></td>
+                          <td><%= students[i].certificate_type[index] %></td>
+                          <td><%= parseDate(students[i].certificate_date[index]) %></td>
+                          <td><%= students[i].app_points[index] %></td> <!-- Display app points -->
+                          <td>
+                              <form action="/download-certificate" method="post" style="display: inline-block">
+                                  <input type="hidden" name="certificatePath" value="<%= students[i].certificate_path[index] %>">
+                                  <input type="hidden" name="certificateId" value="<%= certificate_id %>">
+                                  <button class="download-button" type="submit">Download</button>
+                              </form>
+                              <form action="/view-certificate" method="post" target="_blank" style="display: inline-block">
+                                  <input type="hidden" name="certificatePath" value="<%= students[i].certificate_path[index] %>">
+                                  <input type="hidden" name="certificateId" value="<%= certificate_id %>">
+                                  <button class="view-button" type="submit">View</button>
+                              </form>
+                          </td>
+                      </tr>
+                  <% }); %> 
+              <% } %> 
+          <% } %>
+      </tbody>
+      <% } %>
+  </table>
+  
+    
+
+      <a href="/report-issue">Report an Issue</a>
+      <form id="logoutForm" action="/logout" method="get">
+        <button type="submit">
+          <i class="material-icons">logout</i> Log Out
+        </button>
+      </form>
+    </div>
+
+    <script>
+      const searchBar = document.getElementById("search-bar");
+  
+      // Add event listener to the search input field
+      searchBar.addEventListener("input", function() {
+          searchByName(); // Call the searchByName function
+      });
+    
+      const certificateTypeSelect = document.getElementById("certificate-type");
+      certificateTypeSelect.addEventListener("change", function() {
+          searchByCertificateType(); // Call the searchByCertificateType function
+      });
+    
+      //searching by DATES
+      document.getElementById("start-date").addEventListener("change", function() {
+          performSearch(); // Call the performSearch function
+      });
+      
+      document.getElementById("end-date").addEventListener("change", function() {
+          performSearch(); // Call the performSearch function
+      });
+
+      // Function to search by certificate type
+      function searchByCertificateType() {
+        const selectedTypes = certificateTypeSelect.value.toLowerCase().split('/'); // Split selected types by '/'
+        
+        const rows = document.querySelectorAll(".student-table tbody tr");
+
+        rows.forEach(row => {
+            const rowCertificateType = row.cells[2].textContent.toLowerCase(); // Get certificate type from table and convert to lowercase
+
+            // Check if any part of the selected types matches the row's certificate type
+            const match = selectedTypes.some(type => rowCertificateType.includes(type.trim()));
+
+            // Show row if there's a match or if "All" is selected
+            if (selectedTypes.includes("all") || match) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none"; // Hide row if certificate type does not match
+            }
+        });
+      }
+
+
+
+    
+      // Function to search by date range
+      function performSearch() {
+          const startDateInput = document.getElementById("start-date").value;
+          const endDateInput = document.getElementById("end-date").value;
+    
+          // Convert selected dates to JavaScript Date objects
+          const startDate = parseDate(startDateInput);
+          const endDate = parseDate(endDateInput);
+    
+          if (!startDateInput || !endDateInput) {
+              alert("Please select both start and end dates.");
+              return; // Stop execution if dates are not selected
+          }
+    
+          if (startDate > endDate) {
+              alert("Start date cannot be greater than end date.");
+              return; // Stop execution if start date is greater than end date
+          }
+    
+          const rows = document.querySelectorAll(".student-table tbody tr");
+    
+          rows.forEach(row => {
+              const certificateDateStr = row.cells[3].textContent; // Get certificate date string from table
+              const certificateDate = parseDate(certificateDateStr); // Parse date string to Date object
+    
+              // Check if certificate date is within the selected date range
+              if (certificateDate >= startDate && certificateDate <= endDate) {
+                  row.style.display = ""; // Show row if date is within range
+              } else {
+                  row.style.display = "none"; // Hide row if date is outside range
+              }
+          });
+      }
+    
+      // Function to parse date string in DD/MM/YYYY format to Date object
+      function parseDate(dateStr) {
+          const [day, month, year] = dateStr.split('/'); // Assuming date format is 'DD/MM/YYYY'
+          return new Date(`${year}-${month}-${day}`); // Create Date object using ISO format (YYYY-MM-DD)
+      }
+    
+      // Function to search by name
+      function searchByName() {
+          const searchQuery = searchBar.value.toLowerCase(); // Get the search query and convert it to lowercase for case-insensitive search
+    
+          const rows = document.querySelectorAll(".student-table tbody tr");
+    
+          rows.forEach(row => {
+              const certificationId = row.cells[1].textContent.toLowerCase(); // Get the text content of Certification ID column
+              const certificateType = row.cells[2].textContent.toLowerCase(); // Get the text content of Certificate Type column
+    
+              // If the row contains the search query in "Certification ID" or "Certificate Type" columns, display it, otherwise hide it
+              if (certificationId.includes(searchQuery) || certificateType.includes(searchQuery)) {
+                  row.style.display = ""; // Display the row
+              } else {
+                  row.style.display = "none"; // Hide the row
+              }
+          });
+      }
+    
+      // Function to compare dates for sorting
+      function compareDatesDescending(a, b) {
+          const dateA = parseDate(a.cells[3].textContent);
+          const dateB = parseDate(b.cells[3].textContent);
+          return dateB - dateA; // Compare in descending order (latest first)
+      }
+    
+      function updateSerialNumbers() {
+          let serialNumber = 1;
+          const rows = document.querySelectorAll(".student-table tbody tr");
+          rows.forEach(row => {
+              row.cells[0].textContent = serialNumber++;
+          });
+      }
+    
+      // Perform initial sorting on page load
+      document.addEventListener('DOMContentLoaded', function () {
+          const rows = document.querySelectorAll(".student-table tbody tr");
+          const sortedRows = Array.from(rows).sort(compareDatesDescending); // Sort in descending order (latest first)
+          const tbody = document.querySelector('.student-table tbody');
+          tbody.innerHTML = ''; // Clear existing rows
+          sortedRows.forEach(row => tbody.appendChild(row)); // Append in reverse order to maintain display order
+          updateSerialNumbers(); // Update serial numbers after sorting
+      });
+    
+      document.addEventListener('DOMContentLoaded', async function () {
+          const response = await fetch('/total-app-points'); // Assuming you have an API endpoint to fetch total app points
+          console.log(response)
+          const totalAppPoints = await response.text(); // Convert response to text
+          const totalAppPointsElement = document.getElementById('total-app-points');
+          totalAppPointsElement.textContent = totalAppPoints;
+      });
+    </script>
+    
+  </body>
+</html>

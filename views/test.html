@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>PDF Generator</h1>
+    <input type="file" id="pdfFile" name="pdfFile"><br><br>
+    <button id="openPdfBtn">Open PDF</button><br><br>
+    <button id="generatePdfBtn">Generate PDF</button>
+
+    <div id="pdfViewer">
+        <canvas id="pdfCanvas"></canvas>
+    </div>
+
+    <script>
+        const pdfViewer = document.getElementById('pdfViewer');
+        const canvas = document.getElementById('pdfCanvas');
+        const ctx = canvas.getContext('2d');
+        let pdfData;
+        let pdfInstance;
+
+        const pdfFileInput = document.getElementById('pdfFile');
+        const openPdfBtn = document.getElementById('openPdfBtn');
+        const generatePdfBtn = document.getElementById('generatePdfBtn');
+
+        pdfFileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const fileReader = new FileReader();
+
+            fileReader.onload = function() {
+                pdfData = new Uint8Array(this.result);
+            };
+
+            fileReader.readAsArrayBuffer(file);
+        });
+
+        openPdfBtn.addEventListener('click', function() {
+            if (pdfData) {
+                pdfjsLib.getDocument(pdfData).promise.then(function(instance) {
+                    pdfInstance = instance;
+                    renderPage(instance, 1);
+                });
+            } else {
+                console.error('Please select a PDF file first.');
+            }
+        });
+
+        generatePdfBtn.addEventListener('click', function() {
+            if (pdfInstance) {
+                if (selectedCoordinates.x !== null && selectedCoordinates.y !== null) {
+                    const formData = new FormData();
+                    formData.append('pdfFile', pdfData);
+                    formData.append('x', selectedCoordinates.x);
+                    formData.append('y', selectedCoordinates.y);
+
+                    fetch('http://localhost:3000/generate-pdf', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'generated.pdf';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(error => console.error('Error generating PDF:', error));
+                } else {
+                    console.error('Please select coordinates on the PDF.');
+                }
+            } else {
+                console.error('Please open a PDF file first.');
+            }
+        });
+
+        let selectedCoordinates = { x: null, y: null };
+
+        function renderPage(pdf, pageNumber) {
+            pdf.getPage(pageNumber).then(function(page) {
+                const viewport = page.getViewport({ scale: 1 });
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+
+                page.render(renderContext).promise.then(() => {
+                    canvas.addEventListener('click', function(event) {
+                        const rect = canvas.getBoundingClientRect();
+                        const scaleX = canvas.width / rect.width;
+                        const scaleY = canvas.height / rect.height;
+                        selectedCoordinates.x = (event.clientX - rect.left) * scaleX;
+                        selectedCoordinates.y = (event.clientY - rect.top) * scaleY;
+
+                        console.log('Clicked coordinates:', selectedCoordinates);
+                    });
+                });
+            });
+        }
+    </script>
+</body>
+</html>

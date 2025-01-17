@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="/login.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <title>Login</title>
+</head>
+<body>
+  
+    <form action="/users/login" method="post">
+
+      <div>
+
+        <ul>
+          <% if (typeof errors != 'undefined') { %> <% errors.forEach(error => { %>
+          <li><%= error.message %></li>
+          <% }) %> <% } %>
+        </ul>
+
+        <h1>Log In</h1>
+        <label>User Type</label>
+        <select name="role" required>
+          <option value="student">Student</option>
+          <option value="admin">Admin</option>
+        </select>
+        <label>Roll Number</label>
+        <input type="Roll Number" name="roll_number" required />
+        <label>Password</label>
+        <input type="password" name="password" required  />
+        <button type="submit">Login</button>
+        <div id="loginbottom">  
+          <a href="/signup">Not an user?</a>
+          <a href="/forgetPassword">Forget Password</a>
+        </div>
+      </div>
+    </form>
+</body>
+</html>

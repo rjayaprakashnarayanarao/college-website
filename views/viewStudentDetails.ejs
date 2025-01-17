@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="/Student.css">
+  <link rel="stylesheet" href="/Certificatesview.css">
+  <title>Student Details</title>
+</head>
+<body>
+
+  <div class="dashboard-container"> 
+    <div class="top-bar">
+      <h1>CERTIFICATE VIEWER</h1>  
+    </div>
+
+    <div class="student-info"  id="studentInfo">
+      <strong id="rollNumberLabel">Roll Number:</strong> <span id="rollNumber"></span>
+    </div>
+
+    <!-- Insert your search form here -->
+    <form class="search-container" id="searchForm">
+      <label id="rollnumber-search" for="roll-number-search">Search by Roll Number:</label>
+      <input type="text" name="roll_number" id="roll-number-search" placeholder="Enter Roll Number">
+      <button type="submit" id="searchButton">Search</button>
+    </form>
+
+    <div id="resultContainer" style="display: none;">
+      <div class="student-info" id="studentInfo">
+        <!-- Student details will be displayed here -->
+      </div>
+
+      <h2>Certificates:</h2>
+      <ul id="certificatesList">
+        <!-- Certificates will be displayed here -->
+      </ul>
+
+      <h2 id="studentTableHeading">Student Table:</h2>
+      <table id="studentTable" class="student-table" border="1" style="display: none;">
+        <thead>
+          <tr>
+            <th>Serial Number</th>
+            <th>Certification ID</th>
+            <th>Certificates</th>
+            <th>Certificate Type</th> 
+            <th>Certificate Date</th> 
+            <th>APP POINTS</th>
+            <th>Action</th> 
+          </tr>
+        </thead>
+        <tbody id="studentTableBody">
+          <!-- Student table rows will be dynamically added here -->
+        </tbody>
+      </table>
+    </div>
+
+    <div id="noRecords" style="display: none;">
+      <p>No student details found for the provided roll number.</p>
+    </div>
+
+    <form id="logoutForm" action="/logout" method="get">
+      <button type="submit"><i class="material-icons">logout</i> Log Out</button>
+    </form>
+    
+    <form id="back-form" action="/" method="get">
+      <button id="Back" type="submit">Back</button>
+    </form> 
+
+    <!-- Display delete success message -->
+    <div id="deleteSuccessMessage" style="display: none;">
+      <p>Certificate deleted successfully.</p>
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('searchForm').addEventListener('submit', function (event) {
+        // Prevent the default form submission
+        event.preventDefault();
+  
+        // Get roll number from the input
+        const rollNumber = document.getElementById('roll-number-search').value;
+  
+        // Send a POST request to the server using Fetch API
+        fetch('/admin_Dashboard/viewStudentDetails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ roll_number: rollNumber }),
+        }).then(response => response.json())
+          .then(data => {
+            // Reset all sections
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('certificatesList').innerHTML = '';
+            document.getElementById('studentTableBody').innerHTML = '';
+            document.getElementById('noRecords').style.display = 'none';
+            document.getElementById('deleteSuccessMessage').style.display = 'none'; // Hide delete success message
+  
+            console.log(data);
+  
+            if (data && data.student.length > 0) {
+              // Display student details for the first student
+              const student = data.student[0];
+  
+              // Update roll number only if data is valid
+              document.getElementById('rollNumber').textContent = student.roll_number;
+  
+              // Display certificates
+              const certificatesList = document.getElementById('certificatesList');
+              certificatesList.innerHTML = ''; // Clear previous content
+
+              if (student.certificate_id && student.certificate_id.length > 0) {
+                const li = document.createElement('li');
+                li.innerHTML = '<strong>Certificates:</strong> ';
+              } else {
+                // Display a message when no certificates are found
+                const li = document.createElement('li');
+                li.innerHTML = '<strong>No certificates found for this student.</strong>';
+                certificatesList.appendChild(li);
+              }
+  
+              // Display student table
+              const studentTableBody = document.getElementById('studentTableBody');
+              studentTableBody.innerHTML = ''; // Clear previous content
+              let serialNumber = 1;
+  
+              if (student.app_points && student.app_points.length > 0) {
+                student.app_points.forEach((appPoint, index) => {
+                  const tr = document.createElement('tr');
+                  tr.innerHTML = `
+                    <td>${serialNumber++}</td>
+                    <td>${student.certificate_id[index]}</td>
+                    <td>
+                      <form action="/download-certificate" method="post" style="display: inline-block">
+                        <input type="hidden" name="certificatePath" value="${student.certificate_path[index]}">
+                        <input type="hidden" name="certificateId" value="${student.certificate_id[index]}">
+                        <button type="submit">Download</button>
+                      </form>
+                      <form action="/view-certificate" method="post" target="_blank" style="display: inline-block">
+                        <input type="hidden" name="certificatePath" value="${student.certificate_path[index]}">
+                        <input type="hidden" name="certificateId" value="${student.certificate_id[index]}">
+                        <button type="submit">View</button>
+                      </form>
+                    </td>
+                    <td>${student.certificate_type[index]}</td> <!-- Display certificate type -->
+                    <td>${formatDate(new Date(student.certificate_date[index]))}</td>
+
+                    <td>${appPoint}</td>
+                    <td>
+                      <button onclick="deleteCertificate('${student.certificate_id[index]}', '${student.certificate_path[index]}', '${student.certificate_type[index]}', '${student.certificate_date[index]}', '${student.app_points[index]}')">Delete</button>
+                    </td>
+                    
+                  `;
+                  studentTableBody.appendChild(tr);
+                });
+              }
+
+              // Display student table only if there are certificates
+              const studentTable = document.getElementById('studentTable');
+              studentTable.style.display = (serialNumber > 1) ? 'table' : 'none';
+            } else {
+              // If no records found, display a message and clear the roll number
+              document.getElementById('noRecords').style.display = 'block';
+              document.getElementById('rollNumber').textContent = '';
+            }
+  
+            // Display the result container
+            document.getElementById('resultContainer').style.display = 'block';
+          })
+          .catch(function (error) {
+            console.error('Error:', error);
+          });
+      });
+    });
+      // Function to format date as "dd/mm/yyyy"
+      function formatDate(date) {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+    // Function to delete a certificate
+    function deleteCertificate(certificateId, certificatePath, certificateType, certificateDate, appPoints) {
+      // Create a hidden form to submit the data
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/admin_Dashboard/deleteCertificate';
+      form.style.display = 'none';
+  
+      // Create hidden input fields to pass the data
+      const certificateIdInput = document.createElement('input');
+      certificateIdInput.type = 'hidden';
+      certificateIdInput.name = 'certificateId';
+      certificateIdInput.value = certificateId;
+  
+      const certificatePathInput = document.createElement('input');
+      certificatePathInput.type = 'hidden';
+      certificatePathInput.name = 'certificatePath';
+      certificatePathInput.value = certificatePath;
+  
+      const certificateTypeInput = document.createElement('input');
+      certificateTypeInput.type = 'hidden';
+      certificateTypeInput.name = 'certificateType';
+      certificateTypeInput.value = certificateType;
+  
+      const certificateDateInput = document.createElement('input');
+      certificateDateInput.type = 'hidden';
+      certificateDateInput.name = 'certificateDate';
+      certificateDateInput.value = certificateDate;
+  
+      const appPointsInput = document.createElement('input');
+      appPointsInput.type = 'hidden';
+      appPointsInput.name = 'appPoints';
+      appPointsInput.value = appPoints;
+  
+      // Append the input fields to the form
+      form.appendChild(certificateIdInput);
+      form.appendChild(certificatePathInput);
+      form.appendChild(certificateTypeInput);
+      form.appendChild(certificateDateInput);
+      form.appendChild(appPointsInput);
+  
+      // Append the form to the body and submit it
+      document.body.appendChild(form);
+      form.submit();
+  }
+  
+  </script>
+
+</body>
+</html>

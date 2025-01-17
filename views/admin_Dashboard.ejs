@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="/Admin.css">
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <header>
+        <h1>ADMIN DASHBOARD</h1>
+        <form id="logoutForm" action="/logout" method="get">
+            <button type="submit"><i class="material-icons">logout</i> Log Out</button>
+        </form> 
+    </header>
+
+    <form class="dashboard" action="/UploadRecords" method="post" enctype="multipart/form-data">
+        
+
+        <div class="certificate-management">
+            <h2>Certificate Management</h2>
+            <ul>
+                <% if (typeof errors != 'undefined') { %> <% errors.forEach(error => { %>
+                <li><%= error.message %></li>
+                <% }) %> <% } %>
+            </ul>
+            <div class="input-group">
+                <label for="rollNumber" >Roll Number:</label>
+                <input type="text" name="roll_number" placeholder="Enter Roll Number" required>
+            </div>
+            <div class="input-group">
+                <label for="certificateId" >Certificate ID:</label>
+                <input type="text" name="certificate_id" placeholder="Enter Certificate Number" required>
+            </div>
+            <div class="input-group">
+                <label for="certificateType">Certificate Type:</label>
+                <select id="certificateType" name="certificate_type" required>
+                    <option value="CEA/NSS/National Initiatives">CEA/NSS/National Initiatives</option>
+                    <option value="Sports and Game">Sports and Game <optiones</option>
+                    <option value="Cultural Activities">Cultural Activities</option>
+                    <option value="Women's form activities">Women's form activities<optiones</option>
+                    <option value="Hobby clubs Activities">Hobby clubs Activities</option>
+                    <option value="Professional society Activities">Professional society Activities<optiones</option>
+                    <option value="DEpt. Students Association Activities">DEpt. Students Association Activities</option>
+                    <option value="Technical Club Activities">Technical Club Activities<optiones</option>
+                    <option value="Innovation and Incubation Cell Activities">Innovation and Incubation Cell Activities<optiones</option>
+                    <option value="Professional Self Initiatives">Professional Self Initiatives</option>
+                    <option value="Others">Others<optiones</option>
+                    <!-- Add more options as needed -->
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="certificateDate">Date of Certificate:</label>
+                <input type="date" name="certificate_date" required>
+            </div>
+            <div class="input-group" name = 'Certificate'>
+                <label for="file">Select File:</label>
+                <input type="file" id="file" name="file" required>
+            </div>
+            <div class="input-group" name = 'app_point'>
+                <label for="file">APP POINT:</label>
+                <input type="number" id="app_point" name="app_point" required>
+            </div>
+            <button type="submit" class="upload-btn">Upload</button>
+        </div>
+    </form>
+
+    <aside class="sidebar">
+        <a href="/admin_Dashboard/viewStudentDetails" class="view-certificate-btn">View Student Details</a>
+        <a href="/admin_Dashboard/uploadCertificates">Upload Certificates</a>
+        <a href="/UploadsHistory" class="student-issues-btn">Uploads History</a>
+        <a href="/student-Issues" class="student-issues-btn">Issues of the Student</a>
+    </aside>
+    
+    <script src="script.js"></script>
+</body>
+
+</html>

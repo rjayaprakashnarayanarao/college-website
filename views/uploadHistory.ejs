@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload History</title>
+    <link rel="stylesheet" href="/history.css">
+</head>
+<body>
+    <div class="container">
+        <form action="/" method="get">
+            <button type="submit" id="backbtn" class="back-btn">Back</button>
+        </form>
+        <h1>Upload History</h1>
+        <table class="upload-history">
+            <thead>
+                <tr>
+                    <th>S. No</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Uploaded By</th>
+                    <th>Download</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% history.sort((a, b) => a.timestamp - b.timestamp).forEach((item, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= new Date(item.timestamp).toLocaleDateString() %></td>
+                        <td><%= new Date(item.timestamp).toLocaleTimeString() %></td>
+                        <td><%= item.uploaded_By %></td>
+                        <td>
+                            <!-- Download options -->
+                            <form action="/download" method="post" class="download-form">
+                                <input type="hidden" name="filePath" value="<%= item.Pdf_path %>">
+                                <button type="submit" name="fileType" value="pdf" class="download-btn">Download Template</button>
+                            </form>
+                            <form action="/download" method="post" class="download-form">
+                                <input type="hidden" name="filePath" value="<%= item.xlsx_path %>">
+                                <button type="submit" name="fileType" value="xlsx" class="download-btn">Download Excel</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

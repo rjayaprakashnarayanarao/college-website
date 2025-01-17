@@ -1,0 +1,59 @@
+<!-- view-issues.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+  <title>Reported Issues</title>
+  <link rel="stylesheet" href="issues.css">
+</head>
+<body>
+  <% if (issues.length > 0) { %>
+    <div  class="inner">
+      <h1>Reported Issues</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Student Roll</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Certificate Type</th>
+            <th>Date</th>
+            <th>Action</th>
+            <!-- Add any other fields you want to display -->
+          </tr>
+        </thead>
+        <tbody>
+          <% issues.forEach((issue, index) => { %>
+            <tr>
+              <td><%= issue.roll_number%></td>
+              <td><%= issue.title %></td>
+              <td><%= issue.description %></td>
+              <td><%= issue.certificateType %></td>
+              <td><%= new Date(issue.timestamp).toDateString() %></td>
+              <td>
+                <form method="POST" action="/delete-issue/<%= issue._id %>">
+                  <input type="hidden" name="_method" value="DELETE">
+                  <button class="delete-button" type="submit">Delete</button>
+                </form>
+              </td>
+              <!-- Add any other fields you want to display -->
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+      <a href="/">
+        <button>Back</button>
+      </a>
+    </div>
+  <% } else { %>
+    <p>No reported issues at the moment.</p>
+  <% } %>
+</body>
+</html>
